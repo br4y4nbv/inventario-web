@@ -1,0 +1,7 @@
+.login { max-width: 360px; margin: 4rem auto; font-family: sans-serif; }
+form { display: flex; flex-direction: column; gap: 0.75rem; }
+label { display: flex; flex-direction: column; gap: 0.25rem; }
+input { padding: 0.5rem; }
+button { padding: 0.6rem; cursor: pointer; }
+small, .error { color: #b00020; }
+.ok { color: #1b7f3b; }
