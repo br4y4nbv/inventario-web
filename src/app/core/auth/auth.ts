@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { tap } from 'rxjs';
-import { LoginRequest, LoginResponse } from './auth.models';
+import { JwtPayload, LoginRequest, LoginResponse, Role } from './auth.models';
 
 const TOKEN_KEY = 'inventario.token';
 const EXPIRES_KEY = 'inventario.expiresAt';
@@ -13,8 +13,20 @@ export class Auth {
   private _token = signal<string | null>(this.readValidToken());
   readonly isLoggedIn = computed(() => this._token() !== null);
 
+  private readonly payload = computed(() => {
+    const token = this._token();
+    return token ? this.decodePayload(token) : null;
+  });
+  readonly role = computed<Role | null>(() => this.payload()?.rol ?? null);
+  readonly email = computed(() => this.payload()?.sub ?? null);
+
   get token(): string | null {
     return this._token();
+  }
+
+  hasRole(...roles: Role[]): boolean {
+    const role = this.role();
+    return role !== null && roles.includes(role);
   }
 
   login(credentials: LoginRequest) {
@@ -45,5 +57,15 @@ export class Auth {
       return null;
     }
     return token;
+  }
+
+  private decodePayload(token: string): JwtPayload | null {
+    try {
+      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+      return JSON.parse(new TextDecoder().decode(bytes));
+    } catch {
+      return null;
+    }
   }
 }

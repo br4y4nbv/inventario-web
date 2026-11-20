@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Auth } from '../../../core/auth/auth';
 
 @Component({
@@ -11,6 +12,8 @@ import { Auth } from '../../../core/auth/auth';
 })
 export class Login {
   private fb = inject(FormBuilder);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
   protected readonly auth = inject(Auth);
 
   protected form = this.fb.nonNullable.group({
@@ -30,14 +33,11 @@ export class Login {
     this.error.set(null);
 
     this.auth.login(this.form.getRawValue()).subscribe({
-      next: () => this.loading.set(false),
-      error: (err: HttpErrorResponse) => {
+      next: () => {
         this.loading.set(false);
-        this.error.set(
-          err.status === 401
-            ? 'Correo o contraseña incorrectos.'
-            : 'No se pudo conectar con el servidor.',
-        );
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+        const safe = returnUrl?.startsWith('/') && !returnUrl.startsWith('//');
+        this.router.navigateByUrl(safe ? returnUrl! : '/productos');
       },
     });
   }

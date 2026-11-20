@@ -1,0 +1,9 @@
+<h1>Productos (pantalla temporal)</h1>
+<p>Sesión: {{ auth.email() }} · rol: {{ auth.role() }}</p>
+
+<nav>
+  @if (auth.hasRole('ADMIN')) {
+    <a routerLink="/admin">Panel admin</a>
+  }
+  <button type="button" (click)="logout()">Cerrar sesión</button>
+</nav>
