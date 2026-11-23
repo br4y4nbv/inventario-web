@@ -1,0 +1,17 @@
+:host { display: block; max-width: 960px; margin: 0 auto; padding: 1rem; font-family: sans-serif; }
+.top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+.session { display: flex; align-items: center; gap: 0.75rem; }
+.filters { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-end; margin: 1rem 0; }
+.filters label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.85rem; }
+.filters input, .filters select { padding: 0.4rem; }
+.actions { display: flex; gap: 0.5rem; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+table.loading { opacity: 0.5; }
+th, td { padding: 0.5rem 0.75rem; border-bottom: 1px solid #ddd; text-align: left; }
+th button { background: none; border: 0; font: inherit; font-weight: 700; cursor: pointer; padding: 0; }
+.num { text-align: right; }
+.badge { background: #fde7e9; color: #b00020; border-radius: 4px; padding: 0.1rem 0.4rem; font-size: 0.75rem; margin-left: 0.4rem; }
+.pager { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 1rem; }
+.error { color: #b00020; }
+.empty { text-align: center; color: #666; }

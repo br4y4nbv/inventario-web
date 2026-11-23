@@ -1,0 +1,116 @@
+<header class="top">
+  <h1>Productos</h1>
+  <div class="session">
+    <span>{{ auth.email() }} · {{ auth.role() }}</span>
+    @if (auth.hasRole('ADMIN')) {
+      <a routerLink="/admin">Panel admin</a>
+    }
+    <button type="button" (click)="logout()">Cerrar sesión</button>
+  </div>
+</header>
+
+<form class="filters" [formGroup]="form" (ngSubmit)="search()">
+  <label>
+    Buscar (nombre o SKU)
+    <input type="search" formControlName="q" />
+  </label>
+
+  <label>
+    Estado
+    <select formControlName="activo">
+      <option value="true">Activos</option>
+      <option value="false">Desactivados</option>
+    </select>
+  </label>
+
+  <label>
+    Stock
+    <select formControlName="stockBajo">
+      <option value="">Todos</option>
+      <option value="true">Stock bajo</option>
+      <option value="false">Stock suficiente</option>
+    </select>
+  </label>
+
+  <label>
+    Precio mín.
+    <input type="number" min="0" formControlName="precioMin" />
+  </label>
+
+  <label>
+    Precio máx.
+    <input type="number" min="0" formControlName="precioMax" />
+  </label>
+
+  <div class="actions">
+    <button type="submit" [disabled]="loading()">Buscar</button>
+    <button type="button" (click)="clear()">Limpiar</button>
+  </div>
+</form>
+
+@if (error()) {
+  <p class="error">{{ error() }}</p>
+}
+
+@if (data(); as d) {
+  <div class="table-wrap">
+    <table [class.loading]="loading()">
+      <thead>
+        <tr>
+          <th [attr.aria-sort]="ariaSort('sku')">
+            <button type="button" (click)="toggleSort('sku')">SKU{{ sortIndicator('sku') }}</button>
+          </th>
+          <th [attr.aria-sort]="ariaSort('nombre')">
+            <button type="button" (click)="toggleSort('nombre')">Nombre{{ sortIndicator('nombre') }}</button>
+          </th>
+          <th [attr.aria-sort]="ariaSort('precio')" class="num">
+            <button type="button" (click)="toggleSort('precio')">Precio{{ sortIndicator('precio') }}</button>
+          </th>
+          <th [attr.aria-sort]="ariaSort('stock')" class="num">
+            <button type="button" (click)="toggleSort('stock')">Stock{{ sortIndicator('stock') }}</button>
+          </th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (p of d.content; track p.id) {
+          <tr>
+            <td>{{ p.sku }}</td>
+            <td>{{ p.nombre }}</td>
+            <td class="num">{{ p.precio | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</td>
+            <td class="num">
+              {{ p.stock }}
+              @if (p.stockBajo) {
+                <span class="badge">Stock bajo</span>
+              }
+            </td>
+            <td>{{ p.activo ? 'Activo' : 'Desactivado' }}</td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="5" class="empty">No hay productos con esos filtros.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <nav class="pager" aria-label="Paginación">
+    <button type="button" (click)="goTo(d.page.number - 1)" [disabled]="d.page.number === 0 || loading()">
+      Anterior
+    </button>
+    <span>
+      Página {{ d.page.number + 1 }} de {{ d.page.totalPages || 1 }}
+      · {{ d.page.totalElements }} resultados
+    </span>
+    <button
+      type="button"
+      (click)="goTo(d.page.number + 1)"
+      [disabled]="d.page.number + 1 >= d.page.totalPages || loading()"
+    >
+      Siguiente
+    </button>
+  </nav>
+} @else if (loading()) {
+  <p>Cargando productos...</p>
+}
