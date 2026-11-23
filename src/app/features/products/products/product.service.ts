@@ -7,6 +7,10 @@ import { Page, ProductFilters, Producto } from './product.models';
 export class ProductService {
   private http = inject(HttpClient);
 
+  get(id: number): Observable<Producto> {
+    return this.http.get<Producto>(`/api/productos/${id}`);
+  }
+
   list(f: ProductFilters): Observable<Page<Producto>> {
     let params = new HttpParams()
       .set('activo', f.activo)

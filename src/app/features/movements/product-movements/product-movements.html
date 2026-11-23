@@ -1,0 +1,83 @@
+<a routerLink="/productos" class="back">← Volver a productos</a>
+
+@if (loadError(); as msg) {
+  <p class="error" role="alert">{{ msg }}</p>
+} @else if (producto(); as p) {
+  <header class="product">
+    <h1>{{ p.nombre }}</h1>
+    <p class="meta">
+      SKU {{ p.sku }} · {{ p.precio | currency: 'COP' : 'symbol-narrow' : '1.0-0' }} ·
+      {{ p.activo ? 'Activo' : 'Desactivado' }}
+    </p>
+    <p class="stock">
+      Stock actual: <strong>{{ p.stock }}</strong> (mínimo {{ p.stockMinimo }})
+      @if (p.stockBajo) {
+        <span class="badge">Stock bajo</span>
+      }
+    </p>
+  </header>
+
+  <section>
+    <h2>Registrar movimiento</h2>
+
+    @if (!p.activo) {
+      <p class="error">Este producto está desactivado y no admite movimientos.</p>
+    } @else {
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <label>
+          Tipo
+          <select formControlName="tipo">
+            <option value="ENTRADA">Entrada (suma)</option>
+            <option value="SALIDA">Salida (resta)</option>
+            <option value="AJUSTE">Ajuste (suma con signo)</option>
+          </select>
+        </label>
+
+        <label>
+          Cantidad
+          <input type="number" step="1" formControlName="cantidad" />
+        </label>
+        <small class="hint">
+          @switch (form.controls.tipo.value) {
+            @case ('ENTRADA') { Cantidad positiva: se suma al stock. }
+            @case ('SALIDA') { Cantidad positiva: se resta del stock. }
+            @case ('AJUSTE') { Distinta de cero. Usa negativos para mermas (por ejemplo -3). }
+          }
+        </small>
+        @if (form.controls.cantidad.touched) {
+          @if (form.controls.cantidad.hasError('required')) {
+            <small class="error">La cantidad es obligatoria.</small>
+          } @else if (form.hasError('cantidadEntera')) {
+            <small class="error">La cantidad debe ser un número entero.</small>
+          } @else if (form.hasError('cantidadCoherente')) {
+            <small class="error">
+              {{ form.controls.tipo.value === 'AJUSTE' ? 'El ajuste no puede ser cero.' : 'La cantidad debe ser positiva.' }}
+            </small>
+          }
+        }
+
+        <label>
+          Motivo
+          <input type="text" formControlName="motivo" placeholder="Ej: Compra a proveedor" />
+        </label>
+
+        @if (errors().length) {
+          <ul class="error" role="alert">
+            @for (e of errors(); track $index) {
+              <li>{{ e }}</li>
+            }
+          </ul>
+        }
+        @if (success()) {
+          <p class="ok" role="status">{{ success() }}</p>
+        }
+
+        <button type="submit" [disabled]="saving()">
+          {{ saving() ? 'Registrando...' : 'Registrar' }}
+        </button>
+      </form>
+    }
+  </section>
+} @else {
+  <p>Cargando producto...</p>
+}
