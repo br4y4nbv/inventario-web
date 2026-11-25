@@ -25,3 +25,15 @@ export interface ProblemDetail {
   status?: number;
   errores?: Record<string, string>;
 }
+
+export type MovementSortField = 'fecha' | 'cantidad' | 'tipo';
+
+export interface MovementFilters {
+  tipo?: TipoMovimiento;
+  desde?: string; // AAAA-MM-DD
+  hasta?: string; // AAAA-MM-DD
+  sort: MovementSortField;
+  dir: 'asc' | 'desc';
+  page: number;
+  size: number;
+}

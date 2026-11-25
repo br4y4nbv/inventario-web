@@ -1,6 +1,7 @@
 import { CurrencyPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, viewChild } from '@angular/core';
+import { MovementHistory } from '../movement-history/movement-history';
 import { FormBuilder, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Producto } from '../../products/products/product.models';
@@ -21,7 +22,7 @@ const cantidadValida: ValidatorFn = (group) => {
 
 @Component({
   selector: 'app-product-movements',
-  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe],
+  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe, MovementHistory],
   templateUrl: './product-movements.html',
   styleUrl: './product-movements.css',
 })
@@ -45,6 +46,7 @@ export class ProductMovements implements OnInit {
   protected saving = signal(false);
   protected errors = signal<string[]>([]);
   protected success = signal<string | null>(null);
+  protected history = viewChild(MovementHistory);
 
   ngOnInit(): void {
     if (!Number.isInteger(this.id) || this.id <= 0) {
@@ -73,6 +75,7 @@ export class ProductMovements implements OnInit {
         this.success.set(`Movimiento registrado. Stock resultante: ${mov.stockResultante}.`);
         this.form.reset({ tipo, cantidad: null, motivo: '' });
         this.loadProduct(); // el backend es la fuente de verdad (stock, stock bajo)
+        this.history()?.reload();
       },
       error: (err: HttpErrorResponse) => this.handleError(err),
     });
